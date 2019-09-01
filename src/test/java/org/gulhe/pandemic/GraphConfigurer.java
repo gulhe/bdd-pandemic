@@ -4,9 +4,12 @@ import cucumber.api.TypeRegistry;
 import cucumber.api.TypeRegistryConfigurer;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.datatable.DataTableType;
+import org.gulhe.pandemic.domain.City;
 import org.gulhe.pandemic.domain.Network;
+import org.gulhe.pandemic.domain.Route;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
@@ -26,23 +29,21 @@ public class GraphConfigurer implements TypeRegistryConfigurer {
                 List<List<String>> lines = raw.asLists();
                 List<String> head = head(lines);
                 List<String> columnTitles = tail(head);
-                System.out.println("cols :");
-                columnTitles.forEach(System.out::println);
                 List<String> lineTitles = tail(lines).stream().map(l->l.get(0)).collect(Collectors.toList());
-                System.out.println("lines :");
-                lineTitles.forEach(System.out::println);
+
+                List<Route> links = new LinkedList<>();
                 for (int i = 0; i < columnTitles.size(); i++) {
                     for (int j = 0; j < lineTitles.size()-(i+1); j++) {
                         List<String> line = lines.get(i + 1);
                         String s = line.get(j + 1);
                         if(s.equals("x")){
-                            String cityA = columnTitles.get(j);
-                            String cityB = lineTitles.get(i);
-                            System.out.println("Create a link between " + cityB + " & "+ cityA );
+                            City cityA = new City(columnTitles.get(j));
+                            City cityB = new City(lineTitles.get(i));
+                            links.add(new Route(cityB,cityA));
                         }
                     }
                 }
-                return new Network();
+                return new Network(links.toArray(new Route[0]));
             }
         ));
     }
